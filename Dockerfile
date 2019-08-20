@@ -1,5 +1,5 @@
 FROM centos:7
-MAINTAINER Vincent Toups "vincent.toups@xyleminc.com"
+MAINTAINER Vincent Toups "vincent.toups@gmail.com"
 RUN yum -y groupinstall 'Development Tools'
 RUN yum install -y\
         curl\
