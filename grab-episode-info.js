@@ -41,7 +41,10 @@ const by_number = (a,b) => {
     return a.number - b.number;
 };
 
-Promise.all(pages.map(_ => u.promiseParsedPage(_).then(page => u.obj("url",_,"page",page)))).then(pages => {
+Promise.all(pages
+            .map(_ => u.promiseParsedPage(_)
+                 .then(page => u.obj("url",_,"page",page))))
+    .then(pages => {
     const o = [];
     pages.map(({url,page}) => {
         const urlP = u.parseUrl(url);
