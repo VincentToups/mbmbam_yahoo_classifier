@@ -102,11 +102,40 @@ function deduplicate(a,f){
     return Object.keys(tmp).map(k => tmp[k][0]);    
 }
 
+function pMapSeq(f,a){
+    function pMapSeqH(f,a,o){
+        return new Promise((resolve,reject)=>{
+            if(a.length === 0){
+                resolve(o);
+            } else {
+                f(a[0]).then(r => {
+                    resolve(pMapSeqH(f,a.slice(1),o.concat([r])));
+                });
+            }
+        });
+    }
+    return pMapSeqH(f,a.slice(0),[]);
+}
+
+function pMapCatSeq(f,a){
+    return pMapSeq(f,a).then(r => [].concat.apply([],r));
+}
+
+function promiseDelay(amount,jitter=0){
+    return (resolve_to)=>{
+        return new Promise((resolve,reject)=>setTimeout(_=>resolve(resolve_to),amount+Math.random()*jitter));
+    };
+}
+
+
 module.exports = {
     ensureDirectory:ensureDirectory,
     parseUrl:parseUrl,
+    promiseDelay:promiseDelay,
     promisePage:promisePage,
     promiseParsedPage:promiseParsedPage,
+    pMapSeq:pMapSeq,
+    pMapCatSeq:pMapCatSeq,
     uniqueStrings:uniqueStrings,
     deduplicate:deduplicate,
     obj:obj
