@@ -66,6 +66,7 @@ function get_question_info($){
 }
 
 const urls = require("./derived_data/question-urls.json");
+const control = require("./derived_data/control-question-urls.json");
 
 u.pMapSeq(_ => u.promiseParsedPage(_.url)
           .then(u.promiseDelay(1000,100))
@@ -73,6 +74,15 @@ u.pMapSeq(_ => u.promiseParsedPage(_.url)
     .then(results => {
         fs.writeFileSync(
             "./derived_data/question-info.json",
+            JSON.stringify(results,null, " "));
+    });
+
+u.pMapSeq(_ => u.promiseParsedPage(_)
+          .then(u.promiseDelay(1000,100))
+          .then(get_question_info),control)
+    .then(results => {
+        fs.writeFileSync(
+            "./derived_data/control-question-info.json",
             JSON.stringify(results,null, " "));
     });
 

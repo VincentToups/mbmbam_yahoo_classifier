@@ -127,16 +127,82 @@ function promiseDelay(amount,jitter=0){
     };
 }
 
+function looksLikeYAUrl(url){
+    if (!url) return false;
+    const parsed = parseUrl(url);
+    return (parsed.query["qid"] &&
+            parsed["host"] == "answers.yahoo.com");
+}
+
+function url_to_question_urls(url,prefix){
+    prefix = prefix ? prefix : "";
+    const add_prefix = href => href && href[0] === "/" ? prefix+href : href;
+    console.log("url_to_question_urls: ", url, prefix);
+    return promiseParsedPage(url)
+        .then($=>{
+            const o = [];
+            $("a").each((i,e)=>{
+                const href = add_prefix(e.attribs.href);
+                if(looksLikeYAUrl(href)){
+                    o.push(to_ya_url(parseUrl(href)
+                                      .query.qid));   
+                }
+            });
+            return o;            
+        });
+}
+
+function to_indicator(a,key){
+    key = key ? key : _ => _;
+    const indicator = {};
+    a.forEach(e => {
+        indicator[key(e)] = true;
+    });
+    return indicator;
+}
+
+const to_ya_url = (id) => 'http://answers.yahoo.com/question/index?qid='+id;
+
+function extract_ya_id(url){
+    return parseUrl(url).query["qid"];
+}
+
+function indicator_union(a,b){
+    const o = {};
+    const add = c => Object.keys(c).forEach(k=>o[k]=true);
+    add(a); add(b);
+    return o;
+}
+
+function copy_table(tbl){
+    const out = {};
+    Object.keys(tbl).forEach(k => {
+        out[k] = tbl[k];
+    });
+    return out;
+}
+
+function shuffle(a){
+    return a.map(e => [Math.random(), e]).sort((a,b) => a[0]-b[0]).map(_=>_[1]);
+}
 
 module.exports = {
+    copy_table:copy_table,
     ensureDirectory:ensureDirectory,
+    extract_ya_id:extract_ya_id,
+    indicator_union:indicator_union,
+    looksLikeYAUrl:looksLikeYAUrl,    
     parseUrl:parseUrl,
     promiseDelay:promiseDelay,
     promisePage:promisePage,
     promiseParsedPage:promiseParsedPage,
     pMapSeq:pMapSeq,
     pMapCatSeq:pMapCatSeq,
+    shuffle:shuffle,
+    to_indicator:to_indicator,
+    to_ya_url:to_ya_url,
     uniqueStrings:uniqueStrings,
+    url_to_question_urls:url_to_question_urls,
     deduplicate:deduplicate,
     obj:obj
 };

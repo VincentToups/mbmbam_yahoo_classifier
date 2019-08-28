@@ -3,30 +3,19 @@ const u = require("./util.js");
 const fs = require("fs");
 const urldecode = require("urldecode");
 
-function looksLikeYAUrl(url){
-    if (!url) return false;
-    const parsed = u.parseUrl(url);
-    return (parsed.query["qid"] &&
-            parsed["host"] == "answers.yahoo.com");
-}
+const looksLikeYAUrl = u.looksLikeYAUrl;
 
-const to_ya_url = (id) => 'http://answers.yahoo.com/question/index?qid='+id;
+const to_ya_url = u.to_ya_url;
+
+
 function oneEpisodeToQuestionIds(info){
     const url = info.url;
-    return u.promiseParsedPage(url)
-        .then($=>{
-            const o = [];
-            $("a").each((i,e)=>{
-                if(looksLikeYAUrl(e.attribs.href)){
-                    o.push({
-                        episode:info.number,
-                        url:to_ya_url(u.parseUrl(e.attribs.href)
-                                      .query.qid)
-                    });   
-                }
-            });
-            return o;            
-        });
+    return u.url_to_question_urls(url).then(_ => {
+        return {
+            episode:info.number,
+            url:_
+        };
+    });
 }
 
 const episode_list = require("./derived_data/episode-info.json");
