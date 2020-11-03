@@ -1,0 +1,5 @@
+{
+    "metric":"levenshtein",
+    "threshold":10
+}
+

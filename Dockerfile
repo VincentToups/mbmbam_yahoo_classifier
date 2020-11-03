@@ -12,7 +12,9 @@ RUN yum install -y\
         sqlite\
         wget\
         which\
-        zlib-devel
+        zlib-devel\
+        lzma-sdk-devel\
+        bzip2-devel
 COPY install-python-3.6.sh /
 RUN bash install-python-3.6.sh
 RUN python3 -m ensurepip

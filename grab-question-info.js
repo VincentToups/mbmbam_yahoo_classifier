@@ -49,28 +49,33 @@ function get_other_answers($){
     return Array.prototype.slice.call(c,0,n);
 }
 
-function get_question_info($){
-    const out = {};
-    const q = get_question($);
-    const ba = get_best_answer($);
-    const a = get_other_answers($);
-    out.question = q.question;
-    out.detail = q.detail;
-    if(ba){
-        out.first_best = true;
-        out.answers = [ba].concat(a);
-    } else {
-        out.first_best = false;
-    }
-    return out;    
+function get_question_info(url){
+    return function get_question_info($){
+        const out = {};
+        const q = get_question($);
+        const ba = get_best_answer($);
+        const a = get_other_answers($);
+        out.question = q.question;
+        out.detail = q.detail;
+        out.url = url;
+        if(ba){
+            out.first_best = true;
+            out.answers = [ba].concat(a);
+        } else {
+            out.first_best = false;
+        }
+        return out;    
+    };
 }
+
+
 
 const urls = require("./derived_data/question-urls.json");
 const control = require("./derived_data/control-question-urls.json");
 
 u.pMapSeq(_ => u.promiseParsedPage(_.url)
           .then(u.promiseDelay(1000,100))
-          .then(get_question_info),urls)
+          .then(get_question_info(_.url)),urls)
     .then(results => {
         fs.writeFileSync(
             "./derived_data/question-info.json",
@@ -79,7 +84,7 @@ u.pMapSeq(_ => u.promiseParsedPage(_.url)
 
 u.pMapSeq(_ => u.promiseParsedPage(_)
           .then(u.promiseDelay(1000,100))
-          .then(get_question_info),control)
+          .then(get_question_info(_)),control)
     .then(results => {
         fs.writeFileSync(
             "./derived_data/control-question-info.json",
